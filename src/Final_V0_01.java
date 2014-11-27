@@ -39,7 +39,7 @@ class Final_V0_01 extends JFrame implements ActionListener, KeyListener{
 	int xa=0,ya=-384,cnt_step,sprite_status=1;
 	int totalFrameCount = 0, fps=0;
 	static File maptxt[] = new File[6];
-	public boolean upKey=false,leftKey=false,rightKey=false,downKey=false, walking=false;
+	public boolean upKey=false,leftKey=false,rightKey=false,downKey=false, leftMove=false, rightMove=false, upMove=false, downMove=false;
 	private static Insets insets;
 	static int read_width = 32, read_height = 32, read_row = 115, read_col = 54, step = 0;
 	Sprites sprite[]=new Sprites[12];
@@ -101,12 +101,15 @@ class Final_V0_01 extends JFrame implements ActionListener, KeyListener{
 		if(key==KeyEvent.VK_LEFT||key==KeyEvent.VK_A){
 			leftKey=true;
 		}
-		if(key==KeyEvent.VK_RIGHT||key==KeyEvent.VK_D)
+		if(key==KeyEvent.VK_RIGHT||key==KeyEvent.VK_D){
 			rightKey=true;
-		if(key==KeyEvent.VK_DOWN||key==KeyEvent.VK_S)
+		}
+		if(key==KeyEvent.VK_DOWN||key==KeyEvent.VK_S){
 			downKey=true;
-		if(key==KeyEvent.VK_UP||key==KeyEvent.VK_W)
+		}
+		if(key==KeyEvent.VK_UP||key==KeyEvent.VK_W){
 			upKey=true;
+		}
 	}
 
 	@Override
@@ -114,21 +117,25 @@ class Final_V0_01 extends JFrame implements ActionListener, KeyListener{
 		int key = e.getExtendedKeyCode();
 		if(key==KeyEvent.VK_LEFT||key==KeyEvent.VK_A){
 			leftKey=false;
+			leftMove=false;
 			cnt_step=4;
 			lastKey=0;
 		}
 		if(key==KeyEvent.VK_RIGHT||key==KeyEvent.VK_D){
 			rightKey=false;
+			rightMove=false;
 			cnt_step=7;
 			lastKey=1;
 		}
 		if(key==KeyEvent.VK_DOWN||key==KeyEvent.VK_S){
 			downKey=false;
+			upMove=false;
 			cnt_step=10;
 			lastKey=3;
 		}
 		if(key==KeyEvent.VK_UP||key==KeyEvent.VK_W){
 			upKey=false;
+			downMove=false;
 			cnt_step=1;
 			lastKey=2;
 		}
@@ -195,12 +202,10 @@ class Final_V0_01 extends JFrame implements ActionListener, KeyListener{
 			getLocationY();
 			totalFrameCount++;
 			cnt_step++;
-			if(leftKey){
-
-				if(xa<=-854)
-					xa=-852;
-				if(xa<384)
-					xa+=2;
+			//if(getLocationX()>0&&getLocationY()>0){
+			if(leftKey==true&&isWalkabel('l')){
+				xa+=2;
+				System.out.println(xa%32);
 				if(cnt_step<=1)
 					sprite_status=4;
 				if(cnt_step>=10&&cnt_step<20){
@@ -212,11 +217,8 @@ class Final_V0_01 extends JFrame implements ActionListener, KeyListener{
 				}
 			}
 
-			else if(rightKey==true){
-				if(xa>=383)
-					xa=382;
-				if(xa>-854)
-					xa-=2;
+			else if(rightKey==true&&isWalkabel('r')){
+				xa-=2;
 				if(cnt_step<=1)
 					sprite_status=7;
 				if(cnt_step>=10&&cnt_step<20){
@@ -228,11 +230,8 @@ class Final_V0_01 extends JFrame implements ActionListener, KeyListener{
 				}
 			}
 
-			else if(upKey==true){
-				if(ya<=-964)
-					ya=-963;
-				if(ya<258)
-					ya+=2;
+			if(upKey==true&&isWalkabel('u')){
+				ya+=2;
 				if(cnt_step<=1)
 					sprite_status=10;
 				if(cnt_step>=10&&cnt_step<20){
@@ -243,11 +242,8 @@ class Final_V0_01 extends JFrame implements ActionListener, KeyListener{
 					cnt_step=1;
 				}
 			}
-			else if(downKey==true){
-				if(ya>=258)
-					ya=259;
-				if(ya>-964)
-					ya-=2;
+			else if(downKey==true&&isWalkabel('d')){
+				ya-=2;
 				if(cnt_step<=1)
 					sprite_status=1;
 				if(cnt_step>=10&&cnt_step<20){
@@ -261,6 +257,7 @@ class Final_V0_01 extends JFrame implements ActionListener, KeyListener{
 			}
 			else if(!leftKey&&!rightKey&&!upKey&&!downKey&&lastKey==0){
 				if(xa%32!=0){
+					System.out.print("No,,,");
 					xa+=2;
 					if(cnt_step<=1)
 						sprite_status=4;
@@ -316,23 +313,54 @@ class Final_V0_01 extends JFrame implements ActionListener, KeyListener{
 				}
 			}
 
+
 			repaint();
 		}
 	}	
+	public boolean isWalkabel(char n){//l left, r right, u up, d down
+		//System.out.println(n);
+		boolean res = false;
+		switch(n){
+		case 'l':
+			System.out.print(getLocationY()+" "+(getLocationX()-1)+" "+(num[5][getLocationY()][getLocationX()-1]));
+			if(num[5][getLocationY()][getLocationX()-1]==351){
+				System.out.println(" "+true);
+				res = true;
+				}
+			
+			break;	
+		case 'r':
+			//System.out.println(getLocationY()+" "+(getLocationX()+1)+" "+(num[5][getLocationY()][getLocationX()+1]));
+			if(num[5][getLocationY()][getLocationX()+1]==351)
+				res = true;
+			break;
+		case 'u':
+			System.out.print(getLocationY()-1+" "+(getLocationX())+" "+(num[5][getLocationY()-1][getLocationX()]));
+			if(num[5][getLocationY()-1][getLocationX()]==351)
+				res = true;
+			break;
+		case 'd':
+			if(num[5][getLocationY()+1][getLocationX()]==351)
+				res = true;
+			break;
+
+		}
+		System.out.println(" "+res);
+		return res;
+
+
+	}
+
 	public int getLocationX(){
-		System.out.println(-xa/32+12);
-		return -xa/32 +12;
+		//System.out.println(-xa/32+12);
+		return -xa/32+12;
 	}
 	public int getLocationY(){
-		System.out.println(-ya/32+9);
-		return -ya/32;
+		//System.out.println(-ya/32+9);
+		return -ya/32+9;
 	}
 
-	public boolean isWalkabel(){
-		
-		return false;
 
-	}
 	public void paintOffscreen(Graphics g){
 		Graphics2D g2 = (Graphics2D) g;
 		super.paint(g);	
