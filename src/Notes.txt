@@ -1,0 +1,6 @@
+Notes:
+Layer 0 --> sea, stone(on the sea), sand,  first layer of grass
+Layer 1 --> second Layer of grass ground
+Layer 2 --> grass, flowers, trees
+Layer 3 --> edge of land, house
+Layer 4 --> ball
