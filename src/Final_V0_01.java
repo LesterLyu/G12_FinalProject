@@ -49,10 +49,10 @@ class Final_V0_01 extends Canvas implements Runnable{
 	private int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 	KeyBoard k;
 	//public Screen screen;
-	boolean temp = true, conversation = false;
+	boolean temp = true, showConversation = false, showMenu = false;;
 	String text_con = "";
-	int text_cnt = 0;
-	boolean zFirst = true;
+	int text_cnt = 0, menu_p = 0;
+	boolean zFirst = true, enterFirst = true,upFirst = true, downFirst = true;;
 	//debug only
 	JFrame debugFrame = new JFrame();
 	JLabel dl[] = new JLabel[10];
@@ -103,7 +103,7 @@ class Final_V0_01 extends Canvas implements Runnable{
 		debugFrame.setVisible(true);
 
 		//
-		StartCon("Welcome to the Pokemon World!\nPress Z to contine.");
+		StartCon("Welcome to the Pokemon World!\nPress \"Z\" to contine.");
 	}
 	public synchronized void start(){
 		running = true;
@@ -153,7 +153,8 @@ class Final_V0_01 extends Canvas implements Runnable{
 	public void update(){
 		cnt_step++;
 		dl[3].setText("keyPressed: "+(char)keyPressed);
-		{//Check Keys
+
+		if(!showMenu&&!showConversation){//Check Keys
 			if(k.leftKey){
 				if(keyPressed!='u'&&keyPressed!='d'&&keyPressed!='r')
 					keyPressed='l';
@@ -171,28 +172,93 @@ class Final_V0_01 extends Canvas implements Runnable{
 					keyPressed='d';
 			}
 		}//end keys
-		if(k.zKey){
-			if(zFirst){
-			zFirst = false;
-			
-			switch(text_cnt){
-			case 0:
-				StartCon("It's like a normal Pokemon game.");
-				break;
-			case 1:
-				StartCon("Let's explore the world!");
-				break;
-			case 2:
-				conversation = false;
-				break;
+		else if(showMenu){
+			if(k.upKey){
+				if(upFirst){
+					upFirst = false;
+					if(menu_p>0)
+						menu_p --;
+				}
+
 			}
-			text_cnt++;
+			else if(!k.upKey){
+				upFirst = true;
+			}
+
+			if(k.downKey){
+				if(downFirst){
+					downFirst = false;
+					if(menu_p<4)
+						menu_p ++;
+				}
+
+			}
+			else if(!k.downKey){
+				downFirst = true;
+			}
+			if(k.zKey){//menu
+				switch(menu_p){
+				case 0:
+					
+					break;
+				case 1:
+
+					break;
+				case 2:
+
+					break;
+				case 3:
+
+					break;
+
+				case 4:
+					System.exit(0);
+					break;
+				}
+			}
+			if(k.xKey)
+				showMenu=false;
+		}
+		else{
+			//other keys
+			if(k.zKey){
+				if(zFirst){
+					zFirst = false;
+
+					switch(text_cnt){
+					case 0:
+						StartCon("It's like a normal Pokemon game.");
+						break;
+					case 1:
+						StartCon("You can press \"Enter\" to open the menu.");
+						break;
+					case 2:
+						StartCon("Let's explore the world!");
+						break;
+					case 3:
+						showConversation = false;
+						break;
+					}
+					text_cnt++;
+				}
+			}
+			else{
+				zFirst=true;
+			}
+		}
+		if(k.enterKey){
+			if(enterFirst){
+				enterFirst = false;
+				if(showMenu)
+					showMenu = false;
+				else
+					showMenu = true;
 			}
 		}
 		else{
-			zFirst=true;
+			enterFirst=true;
 		}
-
+		//End other keys
 
 
 		//moving
@@ -364,10 +430,10 @@ class Final_V0_01 extends Canvas implements Runnable{
 				g.drawImage(Tiles.getImage(a, b), xa+0+j*32, ya+0+i*32,32,32,null);// layers 4
 			}
 		}
-
+		Graphics2D g2d = (Graphics2D)g;
 		//System.out.println(xa+" "+ya);  //coordinate
-		if(conversation){
-			Graphics2D g2d = (Graphics2D)g;
+		if(showConversation){
+
 			g2d.setStroke(new BasicStroke(10));
 			g2d.setColor(new Color(0,248,152));
 			//g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 9 * 0.1f)); //slow
@@ -377,7 +443,7 @@ class Final_V0_01 extends Canvas implements Runnable{
 			g2d.setStroke(new BasicStroke(1));
 			//	g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 9 * 0.1f));
 			g2d.fillRoundRect(0+15, height*scale*3/4-5, width*scale-30, height*scale/4, 30, 30);
-			g2d.setColor(Color.white);
+			g2d.setColor(new Color(248,248,248));
 			//	g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 9 * 0.1f));
 			g2d.fillRoundRect(0+40, height*scale*3/4, width*scale-30-50, height*scale/4-10, 30, 30);
 			//text_con = "aaaa";
@@ -386,13 +452,32 @@ class Final_V0_01 extends Canvas implements Runnable{
 			drawString(g2d, text_con, 0+50, height*scale*3/4+0);
 
 		}
-
+		if(!showConversation&&showMenu){
+			g2d.setStroke(new BasicStroke(5));
+			g2d.setColor(new Color(86,83,113));
+			g2d.drawRoundRect(width*scale-120-4, 100-4, 100+8, height*scale-200+8, 5, 5);
+			g2d.setStroke(new BasicStroke(6));
+			g2d.setColor(new Color(107,100,125));
+			g2d.drawRoundRect(width*scale-120-1, 100-1, 100+2, height*scale-200+2, 5, 5);
+			g2d.setColor(new Color(248,248,248));
+			g2d.setStroke(new BasicStroke(2));
+			g2d.fillRoundRect(width*scale-120, 100, 100, height*scale-200, 5, 5);
+			g2d.setColor(new Color(107,100,125));
+			g2d.fillOval(width*scale-120+10, 122+menu_p*30, 10, 10);
+			g2d.setFont(new Font("", Font.PLAIN, 20)); 
+			g2d.drawString("¹ÖÊÞ", width*scale-120+20, 135);
+			g2d.drawString("Bag", width*scale-120+20, 135+30);
+			g2d.drawString("Money", width*scale-120+20, 135+60);
+			g2d.drawString("Save", width*scale-120+20, 135+90);
+			g2d.drawString("Exit", width*scale-120+20, 135+120);
+		}
+		g2d.dispose();
 		g.dispose();
 		bs.show();
 	}
 
 	public void StartCon(String s){
-		conversation = true;
+		showConversation = true;
 		text_con = s;
 	}
 	public static int readLines() throws IOException{
@@ -481,8 +566,8 @@ class Final_V0_01 extends Canvas implements Runnable{
 
 	}
 	public void drawString(Graphics g, String text, int x, int y) {
-	    for (String line : text.split("\n"))
-	        g.drawString(line, x, y += g.getFontMetrics().getHeight());
+		for (String line : text.split("\n"))
+			g.drawString(line, x, y += g.getFontMetrics().getHeight());
 	}
 	public int getLocationX(){
 		//System.out.println(-xa/32+12);

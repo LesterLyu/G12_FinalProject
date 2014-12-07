@@ -6,7 +6,7 @@ public class KeyBoard implements KeyListener {
 	
 	
 	public boolean pressed = false;
-	public boolean upKey=false,leftKey=false,rightKey=false,downKey=false,zKey=false;
+	public boolean upKey=false,leftKey=false,rightKey=false,downKey=false,zKey=false,enterKey=false,xKey=false;
 	@Override
 	public void keyTyped(KeyEvent e) {}
 
@@ -28,6 +28,12 @@ public class KeyBoard implements KeyListener {
 		}
 		if(key==KeyEvent.VK_Z){
 			zKey=true;
+		}
+		if(key==KeyEvent.VK_X){
+			xKey=true;
+		}
+		if(key==KeyEvent.VK_ENTER){
+			enterKey=true;
 		}
 	}
 
@@ -53,6 +59,12 @@ public class KeyBoard implements KeyListener {
 		}
 		if(key==KeyEvent.VK_Z){
 			zKey=false;
+		}
+		if(key==KeyEvent.VK_X){
+			xKey=false;
+		}
+		if(key==KeyEvent.VK_ENTER){
+			enterKey=false;
 		}
 	}
 }
