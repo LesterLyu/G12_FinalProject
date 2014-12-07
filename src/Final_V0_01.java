@@ -52,7 +52,9 @@ class Final_V0_01 extends Canvas implements Runnable{
 	boolean temp = true, showConversation = false, showMenu = false;;
 	String text_con = "";
 	int text_cnt = 0, menu_p = 0;
-	boolean zFirst = true, enterFirst = true,upFirst = true, downFirst = true;;
+	boolean zFirst = true, enterFirst = true,upFirst = true, downFirst = true, zFirst2 = true;;
+	//Dennis
+	Battle battle;
 	//debug only
 	JFrame debugFrame = new JFrame();
 	JLabel dl[] = new JLabel[10];
@@ -94,7 +96,7 @@ class Final_V0_01 extends Canvas implements Runnable{
 		Container c1 = debugFrame.getContentPane();
 		c1.setLayout(new FlowLayout());
 		for(int i=0; i<6; i++){
-			dl[i] = new JLabel("       ");
+			dl[i] = new JLabel("¡ú.¡ú       ");
 			c1.add(dl[i]);
 		}
 
@@ -104,6 +106,9 @@ class Final_V0_01 extends Canvas implements Runnable{
 
 		//
 		StartCon("Welcome to the Pokemon World!\nPress \"Z\" to contine.");
+
+		//
+		battle = new Battle();
 	}
 	public synchronized void start(){
 		running = true;
@@ -197,24 +202,30 @@ class Final_V0_01 extends Canvas implements Runnable{
 				downFirst = true;
 			}
 			if(k.zKey){//menu
-				switch(menu_p){
-				case 0:
-					
-					break;
-				case 1:
+				if(zFirst){
+					zFirst = false;
+					switch(menu_p){
+					case 0:
+						battle.p.setVisible(true);
+						break;
+					case 1:
 
-					break;
-				case 2:
+						break;
+					case 2:
 
-					break;
-				case 3:
+						break;
+					case 3:
 
-					break;
+						break;
 
-				case 4:
-					System.exit(0);
-					break;
+					case 4:
+						System.exit(0);
+						break;
+					}
 				}
+			}
+			else if(!k.zKey){
+				zFirst=true;
 			}
 			if(k.xKey)
 				showMenu=false;
@@ -249,9 +260,9 @@ class Final_V0_01 extends Canvas implements Runnable{
 		if(k.enterKey){
 			if(enterFirst){
 				enterFirst = false;
-				if(showMenu)
+				if(showMenu&&!showConversation)
 					showMenu = false;
-				else
+				else if(!showMenu&&!showConversation)
 					showMenu = true;
 			}
 		}
@@ -266,7 +277,7 @@ class Final_V0_01 extends Canvas implements Runnable{
 			temp = isWalkabel('l');
 			walking = temp;
 			if(!temp){
-				keyPressed=-1;
+				//keyPressed=-1;
 				sprite_status=4;
 				walking = false;	
 			}
@@ -276,7 +287,7 @@ class Final_V0_01 extends Canvas implements Runnable{
 			temp = isWalkabel('r');
 			walking = temp;
 			if(!temp){
-				keyPressed=-1;
+				//keyPressed=-1;
 				sprite_status=7;
 				walking = false;	
 			}
@@ -286,7 +297,7 @@ class Final_V0_01 extends Canvas implements Runnable{
 			temp = isWalkabel('u');
 			walking = temp;
 			if(!temp){
-				keyPressed=-1;
+				//keyPressed=-1;
 				sprite_status=10;
 				walking = false;	
 			}
@@ -296,7 +307,7 @@ class Final_V0_01 extends Canvas implements Runnable{
 			temp = isWalkabel('d');
 			walking = temp;
 			if(!temp){
-				keyPressed=-1;
+				//keyPressed=-1;
 				sprite_status=1;
 				walking = false;	
 			}
@@ -304,7 +315,7 @@ class Final_V0_01 extends Canvas implements Runnable{
 		}
 
 		if(walking){
-			if(keyPressed=='l'&&walking&&temp){
+			if(keyPressed=='l'&&temp){
 				walking = true;
 				cnt1+=2;
 				xa+=2;
@@ -327,7 +338,7 @@ class Final_V0_01 extends Canvas implements Runnable{
 					//firstTime = true;
 				}
 			}
-			else if(keyPressed=='r'&&walking&&temp){
+			else if(keyPressed=='r'&&temp){
 				walking = true;
 				cnt1+=2;
 				xa-=2;
@@ -349,7 +360,7 @@ class Final_V0_01 extends Canvas implements Runnable{
 					walking = false;
 				}
 			}
-			else if(keyPressed=='u'&&walking&&temp){
+			else if(keyPressed=='u'&&temp){
 				walking = true;
 				cnt1+=2;
 				ya+=2;
@@ -370,7 +381,7 @@ class Final_V0_01 extends Canvas implements Runnable{
 					walking = false;
 				}
 			}
-			else if(keyPressed=='d'&&walking&&temp){
+			else if(keyPressed=='d'&&temp){
 				walking = true;
 				cnt1+=2;
 				ya-=2;
@@ -392,6 +403,40 @@ class Final_V0_01 extends Canvas implements Runnable{
 				}
 			}
 		}
+		else{
+			//System.out.println(nextLocationX()+" "+nextLocationY());
+			if(nextLocationX()==10&&nextLocationY()==17&&keyPressed=='u'){
+				num[3][17][10] = 2116;
+
+				Tiles.combineTiles(17, 10, num[0][17][10], num[1][17][10], num[2][17][10], num[3][17][10]);
+				num[5][17][10] = 351;
+			}
+			else if(nextLocationX()==14&&nextLocationY()==17&&(k.upKey||k.zKey)){
+				if(zFirst2){
+					if(!showConversation)
+						StartCon("Your friend's home.\nPress \"Z\" to contine.");
+					else if(!k.upKey)
+						showConversation=false;
+					zFirst2=false;
+				}
+			}
+			else if(nextLocationX()==14&&nextLocationY()==27&&(k.upKey||k.zKey)){
+				if(zFirst2){
+					if(!showConversation)
+						StartCon("Your home.\nPress \"Z\" to contine.");
+					else if(!k.upKey)
+						showConversation=false;
+					zFirst2=false;
+				}
+			}
+			else if(!k.zKey) 
+				zFirst2=true;
+			keyPressed=-1; //reset
+		}
+		// End walking
+
+
+
 
 
 		dl[0].setText("x: "+getLocationX());
@@ -559,11 +604,44 @@ class Final_V0_01 extends Canvas implements Runnable{
 			break;
 
 		}
-		System.out.println(" "+res);
+		//System.out.println(" "+res);
 		lastChecked = n;
 		return res;
 
+	}
+	public int nextLocationX(){
+		int res = 0;
+		if(sprite_status==4||sprite_status==5||sprite_status==6){ //l
+			res = getLocationX()-1;
+		}
+		else if(sprite_status==7||sprite_status==8||sprite_status==9){ //r
+			res = getLocationX()+1;
+		}
+		else if(sprite_status==10||sprite_status==11||sprite_status==12){ //u
+			res = getLocationX();
+		}
+		else if(sprite_status==1||sprite_status==2||sprite_status==3){ //d
+			res = getLocationX();
+		}
 
+		return res;
+	}
+	public int nextLocationY(){
+		int res = 0;
+		if(sprite_status==4||sprite_status==5||sprite_status==6){ //l
+			res = getLocationY();
+		}
+		else if(sprite_status==7||sprite_status==8||sprite_status==9){ //r
+			res = getLocationY();
+		}
+		else if(sprite_status==10||sprite_status==11||sprite_status==12){ //u
+			res = getLocationY()-1;
+		}
+		else if(sprite_status==1||sprite_status==2||sprite_status==3){ //d
+			res = getLocationY()+1;
+		}
+
+		return res;
 	}
 	public void drawString(Graphics g, String text, int x, int y) {
 		for (String line : text.split("\n"))
