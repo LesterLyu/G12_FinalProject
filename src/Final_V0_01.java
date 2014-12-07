@@ -6,10 +6,6 @@
 //Double Buffered code is from web
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
@@ -20,25 +16,30 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import javax.swing.*;
 
-class Final_V0_01 extends Canvas implements Runnable, KeyListener{
+class Final_V0_01 extends Canvas implements Runnable{
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+
 	static int lines = 0;
-	BufferedImage bufferedimage;
-	ImageIcon n1;
-	Image mImage;
-	int xa=0,ya=-384,cnt_step,sprite_status=1, cnt1 = 0, lastChecked = -1;
+	int xa=0,ya=-384;
+
+	static int cnt_step;
+
+	int sprite_status=1;
+
+	int cnt1 = 0;
+
+	int lastChecked = -1;
 	int totalFrameCount = 0, fps=0;
 	static File maptxt[] = new File[6];
-	public boolean upKey=false,leftKey=false,rightKey=false,downKey=false, leftMove=false, rightMove=false, upMove=false, downMove=false, walking=false, pressed=false;
-	private static Insets insets;
+	public boolean leftMove=false, rightMove=false, upMove=false, downMove=false, walking=false, pressed=false;
+	//private static Insets insets;
 	static int read_width = 32, read_height = 32, read_row = 115, read_col = 54, step = 0;
 	Sprites sprite[]=new Sprites[12];
-	int num[][][], keyPressed = -1;//0 left, 1 right, 2 up, 3 down
-	//Timer timer1 = new Timer(13,this);
+	int num[][][], keyPressed = -1;
 	JFrame frame;
 	public static int width = 250, height = width/4*3, scale = 3;
 	private Thread thread;
@@ -46,8 +47,12 @@ class Final_V0_01 extends Canvas implements Runnable, KeyListener{
 	public Container c;
 	private BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 	private int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
+	KeyBoard k;
 	//public Screen screen;
-	boolean temp = true;
+	boolean temp = true, conversation = false;
+	String text_con = "";
+	int text_cnt = 0;
+	boolean zFirst = true;
 	//debug only
 	JFrame debugFrame = new JFrame();
 	JLabel dl[] = new JLabel[10];
@@ -59,9 +64,6 @@ class Final_V0_01 extends Canvas implements Runnable, KeyListener{
 		frame = new JFrame();
 		frame.setTitle(title);
 		c = frame.getContentPane();
-		//screen = new Screen(width * scale, height * scale, lines);
-		//c.setBackground(Color.black);
-		//c.setLayout(null);
 
 		//
 		for(int i=0; i<6; i++){
@@ -75,16 +77,6 @@ class Final_V0_01 extends Canvas implements Runnable, KeyListener{
 		Tiles.readPng();
 		num = new int[6][lines][lines];
 
-		Timer updateFPS = new Timer(1000,null);
-
-		updateFPS.addActionListener(new ActionListener(){
-			public void actionPerformed(ActionEvent e) {
-				fps = totalFrameCount;
-				totalFrameCount = 0;
-			}
-		});
-		updateFPS.start();
-
 		try {
 			readMap();
 		} catch (FileNotFoundException e1) {
@@ -92,14 +84,16 @@ class Final_V0_01 extends Canvas implements Runnable, KeyListener{
 		}
 
 
-		this.addKeyListener(this);
 		for(int i=0; i<12; i++)
 			sprite[i]= new Sprites();
 
+		k = new KeyBoard();
+		this.addKeyListener(k);
+		frame.addKeyListener(k);
 
 		Container c1 = debugFrame.getContentPane();
 		c1.setLayout(new FlowLayout());
-		for(int i=0; i<5; i++){
+		for(int i=0; i<6; i++){
 			dl[i] = new JLabel("       ");
 			c1.add(dl[i]);
 		}
@@ -108,8 +102,8 @@ class Final_V0_01 extends Canvas implements Runnable, KeyListener{
 		debugFrame.setLocationRelativeTo(null);
 		debugFrame.setVisible(true);
 
-
-		//timer1.start();
+		//
+		StartCon("Welcome to the Pokemon World!\nPress Z to contine.");
 	}
 	public synchronized void start(){
 		running = true;
@@ -137,8 +131,8 @@ class Final_V0_01 extends Canvas implements Runnable, KeyListener{
 			long now = System.nanoTime();
 			delta += (now - lastTime) / ns;
 			lastTime = now;
-			while(delta >= 1){
-				update();
+			while(delta >= 1){ //call 60 times per second
+				update(); 
 				delta--;
 				updates++;
 			}
@@ -160,154 +154,195 @@ class Final_V0_01 extends Canvas implements Runnable, KeyListener{
 		cnt_step++;
 		dl[3].setText("keyPressed: "+(char)keyPressed);
 		{//Check Keys
-			if(leftKey){
+			if(k.leftKey){
 				if(keyPressed!='u'&&keyPressed!='d'&&keyPressed!='r')
 					keyPressed='l';
 			}
-			else if(rightKey){
+			else if(k.rightKey){
 				if(keyPressed!='u'&&keyPressed!='d'&&keyPressed!='l')
 					keyPressed='r';
 			}
-			else if(upKey){
+			else if(k.upKey){
 				if(keyPressed!='l'&&keyPressed!='r'&&keyPressed!='d')
 					keyPressed='u';
 			}
-			else if(downKey){
+			else if(k.downKey){
 				if(keyPressed!='l'&&keyPressed!='r'&&keyPressed!='u')
 					keyPressed='d';
 			}
 		}//end keys
+		if(k.zKey){
+			if(zFirst){
+			zFirst = false;
+			
+			switch(text_cnt){
+			case 0:
+				StartCon("It's like a normal Pokemon game.");
+				break;
+			case 1:
+				StartCon("Let's explore the world!");
+				break;
+			case 2:
+				conversation = false;
+				break;
+			}
+			text_cnt++;
+			}
+		}
+		else{
+			zFirst=true;
+		}
 
 
-		if(!walking&&keyPressed!=-1)
-			walking = true;
 
-		dl[3].setText("keyPressed: "+(char)keyPressed);
-//		if(keyPressed=='l'&&firstTime){
-//			temp = isWalkabel('l');
-//			walking = temp;
-//			firstTime = false;
-//			if(!temp){
-//				keyPressed=-1;
-//				walking = false;	
-//				cnt1=0;
-//				//return;
-//				//firstTime = true;
-//			}
-//		}
-//		else 
-//			if(keyPressed=='r'&&firstTime){
-//				temp = isWalkabel('r');
-//				walking = temp;
-//				firstTime = false;
-//				if(!temp){
-//					keyPressed=-1;
-//					walking = false;	
-//					cnt1=0;
-//					//return;
-//					//firstTime = true;
-//				}
-//			}
-
-		//if(walking)
-		if(keyPressed=='l'&&walking&&temp){
-			walking = true;
-			cnt1+=2;
-			xa+=2;
-			if(cnt_step<=1)
+		//moving
+		if(keyPressed=='l'){
+			temp = isWalkabel('l');
+			walking = temp;
+			if(!temp){
+				keyPressed=-1;
 				sprite_status=4;
-			if(cnt_step>=10&&cnt_step<20){
-				sprite_status=5;
+				walking = false;	
 			}
-			else if(cnt_step>=20){
-				sprite_status=6;
-				cnt_step=1;
-
-			}
-			if(cnt1%32==0){
-				lastChecked = -1;
-			}
-			if(cnt1%32==0&&!leftKey){
-				cnt1=0;
-				keyPressed=-1;
-				walking = false;
-				//firstTime = true;
-			}
+			else walking = true;
 		}
-		else if(keyPressed=='r'&&walking&&temp){
-			walking = true;
-			cnt1+=2;
-			xa-=2;
-			if(cnt_step<=1)
+		else if(keyPressed=='r'){
+			temp = isWalkabel('r');
+			walking = temp;
+			if(!temp){
+				keyPressed=-1;
 				sprite_status=7;
-			if(cnt_step>=10&&cnt_step<20){
-				sprite_status=8;
+				walking = false;	
 			}
-			else if(cnt_step>=20){
-				sprite_status=9;
-				cnt_step=1;
-
-			}
-			if(cnt1%32==0&&!rightKey){
-				cnt1=0;
-				keyPressed=-1;
-				walking = false;
-			}
+			else walking = true;
 		}
-		else if(keyPressed=='u'&&walking&&isWalkabel('u')){
-			walking = true;
-			cnt1+=2;
-			ya+=2;
-			if(cnt_step<=1)
+		else if(keyPressed=='u'){
+			temp = isWalkabel('u');
+			walking = temp;
+			if(!temp){
+				keyPressed=-1;
 				sprite_status=10;
-			if(cnt_step>=10&&cnt_step<20){
-				sprite_status=11;
+				walking = false;	
 			}
-			else if(cnt_step>=20){
-				sprite_status=12;
-				cnt_step=1;
-			}
-			if(cnt1%32==0&&!upKey){
-				cnt1=0;
-				keyPressed=-1;
-				walking = false;
-			}
+			else walking = true;
 		}
-		else if(keyPressed=='d'&&walking&&isWalkabel('d')){
-			walking = true;
-			cnt1+=2;
-			ya-=2;
-			if(cnt_step<=1)
+		else if(keyPressed=='d'){
+			temp = isWalkabel('d');
+			walking = temp;
+			if(!temp){
+				keyPressed=-1;
 				sprite_status=1;
-			if(cnt_step>=10&&cnt_step<20){
-				sprite_status=2;
+				walking = false;	
 			}
-			else if(cnt_step>=20){
-				sprite_status=3;
-				cnt_step=1;
+			else walking = true;
+		}
+
+		if(walking){
+			if(keyPressed=='l'&&walking&&temp){
+				walking = true;
+				cnt1+=2;
+				xa+=2;
+				if(cnt_step<=1)
+					sprite_status=4;
+				if(cnt_step>=10&&cnt_step<20){
+					sprite_status=5;
+				}
+				else if(cnt_step>=20){
+					sprite_status=6;
+					cnt_step=1;
+				}
+				if(cnt1%32==0){
+					lastChecked = -1;
+				}
+				if(cnt1%32==0&&!k.leftKey){
+					cnt1=0;
+					keyPressed=-1;
+					walking = false;
+					//firstTime = true;
+				}
 			}
-			if(cnt1%32==0&&!downKey){
-				cnt1=0;
-				keyPressed=-1;
-				walking = false;
+			else if(keyPressed=='r'&&walking&&temp){
+				walking = true;
+				cnt1+=2;
+				xa-=2;
+				if(cnt_step<=1)
+					sprite_status=7;
+				if(cnt_step>=10&&cnt_step<20){
+					sprite_status=8;
+				}
+				else if(cnt_step>=20){
+					sprite_status=9;
+					cnt_step=1;
+
+				}
+				if(cnt1%32==0)
+					lastChecked = -1;
+				if(cnt1%32==0&&!k.rightKey){
+					cnt1=0;
+					keyPressed=-1;
+					walking = false;
+				}
+			}
+			else if(keyPressed=='u'&&walking&&temp){
+				walking = true;
+				cnt1+=2;
+				ya+=2;
+				if(cnt_step<=1)
+					sprite_status=10;
+				if(cnt_step>=10&&cnt_step<20){
+					sprite_status=11;
+				}
+				else if(cnt_step>=20){
+					sprite_status=12;
+					cnt_step=1;
+				}
+				if(cnt1%32==0)
+					lastChecked = -1;
+				if(cnt1%32==0&&!k.upKey){
+					cnt1=0;
+					keyPressed=-1;
+					walking = false;
+				}
+			}
+			else if(keyPressed=='d'&&walking&&temp){
+				walking = true;
+				cnt1+=2;
+				ya-=2;
+				if(cnt_step<=1)
+					sprite_status=1;
+				if(cnt_step>=10&&cnt_step<20){
+					sprite_status=2;
+				}
+				else if(cnt_step>=20){
+					sprite_status=3;
+					cnt_step=1;
+				}
+				if(cnt1%32==0)
+					lastChecked = -1;
+				if(cnt1%32==0&&!k.downKey){
+					cnt1=0;
+					keyPressed=-1;
+					walking = false;
+				}
 			}
 		}
+
 
 		dl[0].setText("x: "+getLocationX());
 		dl[1].setText("y: "+getLocationY());
 		dl[2].setText("walking: "+walking);
 		dl[3].setText("keyPressed: "+(char)keyPressed);
+		dl[4].setText("xa= "+xa+" ya= "+ya);
+		dl[5].setText("xa/= "+xa/32.0+" ya/= "+ya/32.0);
 
 	}
 	public void render(){
 		BufferStrategy bs = getBufferStrategy();
 		if(bs == null){
-			createBufferStrategy(3);
+			createBufferStrategy(3); //triple buffering 
 			return;
 		}
 
-		//screen.clear();
-		//screen.render();
 
 		for(int i=0; i<pixels.length; i++){
 			pixels[i] =  0xffffff;
@@ -322,78 +357,43 @@ class Final_V0_01 extends Canvas implements Runnable, KeyListener{
 				g.drawImage(Tiles.getCombinedTile(i, j), xa+0+j*32, ya+0+i*32,32,32,null);// layers 0-3
 			}
 		}
-
+		g.drawImage(sprite[0].getImage(sprite_status), 376,250,48,64,null);
 		for(int i=0; i<lines; i++){
 			for(int j=0; j<lines; j++){
 				int a = num[4][i][j]/100, b = num[4][i][j]%100;
 				g.drawImage(Tiles.getImage(a, b), xa+0+j*32, ya+0+i*32,32,32,null);// layers 4
 			}
 		}
-		g.drawImage(sprite[0].getImage(sprite_status), 376,250,48,64,null);
+
 		//System.out.println(xa+" "+ya);  //coordinate
+		if(conversation){
+			Graphics2D g2d = (Graphics2D)g;
+			g2d.setStroke(new BasicStroke(10));
+			g2d.setColor(new Color(0,248,152));
+			//g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 9 * 0.1f)); //slow
+			g2d.drawRoundRect(0+15, height*scale*3/4-5, width*scale-30, height*scale/4, 30, 30);
+			//g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 10 * 0.1f));
+			g2d.setColor(new Color(0,200,184));
+			g2d.setStroke(new BasicStroke(1));
+			//	g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 9 * 0.1f));
+			g2d.fillRoundRect(0+15, height*scale*3/4-5, width*scale-30, height*scale/4, 30, 30);
+			g2d.setColor(Color.white);
+			//	g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 9 * 0.1f));
+			g2d.fillRoundRect(0+40, height*scale*3/4, width*scale-30-50, height*scale/4-10, 30, 30);
+			//text_con = "aaaa";
+			g2d.setColor(Color.black);
+			g2d.setFont(new Font("TimesRoman", Font.PLAIN, 35)); 
+			drawString(g2d, text_con, 0+50, height*scale*3/4+0);
 
+		}
 
-
-		//g.setColor(Color.black);
-		//g.fillRect(0, 0, getWidth(), getHeight());
 		g.dispose();
 		bs.show();
 	}
-	@Override
-	public void keyTyped(KeyEvent e) {}
 
-	@Override
-	public void keyPressed(KeyEvent e) {
-		int key = e.getExtendedKeyCode();
-		pressed = true;
-		if(key==KeyEvent.VK_LEFT||key==KeyEvent.VK_A){
-			leftKey=true;
-		}
-		if(key==KeyEvent.VK_RIGHT||key==KeyEvent.VK_D){
-			rightKey=true;
-
-		}
-		if(key==KeyEvent.VK_DOWN||key==KeyEvent.VK_S){
-			downKey=true;
-
-		}
-		if(key==KeyEvent.VK_UP||key==KeyEvent.VK_W){
-			upKey=true;
-
-		}
-		dl[3].setText("keyPressed: "+(char)keyPressed);
-	}
-
-	@Override
-	public void keyReleased(KeyEvent e) {
-		int key = e.getExtendedKeyCode();
-		pressed = false;
-		if(key==KeyEvent.VK_LEFT||key==KeyEvent.VK_A){
-			leftKey=false;
-			leftMove=false;
-			cnt_step=4;
-			//keyPressed='l';
-		}
-		if(key==KeyEvent.VK_RIGHT||key==KeyEvent.VK_D){
-			rightKey=false;
-			rightMove=false;
-			cnt_step=7;
-			//keyPressed='r';
-		}
-		if(key==KeyEvent.VK_DOWN||key==KeyEvent.VK_S){
-			downKey=false;
-			upMove=false;
-			cnt_step=10;
-			//keyPressed='d';
-		}
-		if(key==KeyEvent.VK_UP||key==KeyEvent.VK_W){
-			upKey=false;
-			downMove=false;
-			cnt_step=1;
-			//keyPressed='u';
-		}
-		//repaint();
-
+	public void StartCon(String s){
+		conversation = true;
+		text_con = s;
 	}
 	public static int readLines() throws IOException{
 		int cnt =0;
@@ -451,30 +451,20 @@ class Final_V0_01 extends Canvas implements Runnable, KeyListener{
 
 
 	public boolean isWalkabel(char n){//l left, r right, u up, d down
-		//System.out.println(n);
 		boolean res = false;
 
-		//if(walking)
-		//	return true;
-		if(lastChecked==n)
+		if(lastChecked==n&&walking)
 			return true;
 		switch(n){
 		case 'l':
-			//System.out.print(getLocationY()+" "+(getLocationX()-1)+" "+(num[5][getLocationY()][getLocationX()-1]));
-			if(num[5][getLocationY()][getLocationX()-1]==351){
-				System.out.println(" "+true);
+			if(num[5][getLocationY()][getLocationX()-1]==351)
 				res = true;
-			}
-
 			break;	
 		case 'r':
-			//System.out.println(getLocationY()+" "+(getLocationX()+1)+" "+(num[5][getLocationY()][getLocationX()+1]));
 			if(num[5][getLocationY()][getLocationX()+1]==351)
 				res = true;
 			break;
 		case 'u':
-			//System.out.println("*"+getLocationY());
-			//System.out.print(getLocationY()-1+" "+(getLocationX())+" "+(num[5][getLocationY()-1][getLocationX()]));
 			if(num[5][getLocationY()-1][getLocationX()]==351)
 				res = true;
 			break;
@@ -490,7 +480,10 @@ class Final_V0_01 extends Canvas implements Runnable, KeyListener{
 
 
 	}
-
+	public void drawString(Graphics g, String text, int x, int y) {
+	    for (String line : text.split("\n"))
+	        g.drawString(line, x, y += g.getFontMetrics().getHeight());
+	}
 	public int getLocationX(){
 		//System.out.println(-xa/32+12);
 		return -xa/32 +12;
@@ -502,16 +495,12 @@ class Final_V0_01 extends Canvas implements Runnable, KeyListener{
 
 
 	public static void main(String args[]){
-		Final_V0_01 lvds = new Final_V0_01("BETA");  
-		//Insets insets = lvds.frame.getInsets();
-		//lvds.frame.setSize(800 + insets.bottom+insets.top ,640+insets.left+insets.right );     //25x20 tiles
-		//lvds.frame.setResizable( false );
-		lvds.c.add(lvds);
-		lvds.frame.pack();
-		lvds.frame.setVisible(true);                
-		lvds.frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );	
-		lvds.start();
-
+		Final_V0_01 game = new Final_V0_01("BETA");  
+		game.c.add(game);
+		game.frame.pack();
+		game.frame.setVisible(true);                
+		game.frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );	
+		game.start();
 
 	}
 

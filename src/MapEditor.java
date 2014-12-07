@@ -72,6 +72,8 @@ public class MapEditor extends JFrame implements ActionListener, ComponentListen
 		p2.setOpaque(false);
 		//initialize Layered Panel
 		layerp[0]=new JPanel(){
+			private static final long serialVersionUID = 1L;
+
 			protected void paintComponent(Graphics g){
 				super.paintComponent(g);
 				for(int i=0; i<lines; i++){
@@ -83,6 +85,7 @@ public class MapEditor extends JFrame implements ActionListener, ComponentListen
 			}
 		};
 		layerp[1]=new JPanel(){
+			private static final long serialVersionUID = 1L;
 			protected void paintComponent(Graphics g){
 				super.paintComponent(g);
 				for(int i=0; i<lines; i++){
@@ -94,6 +97,7 @@ public class MapEditor extends JFrame implements ActionListener, ComponentListen
 			}
 		};
 		layerp[2]=new JPanel(){
+			private static final long serialVersionUID = 1L;
 			protected void paintComponent(Graphics g){
 				super.paintComponent(g);
 				for(int i=0; i<lines; i++){
@@ -105,6 +109,7 @@ public class MapEditor extends JFrame implements ActionListener, ComponentListen
 			}
 		};
 		layerp[3]=new JPanel(){
+			private static final long serialVersionUID = 1L;
 			protected void paintComponent(Graphics g){
 				super.paintComponent(g);
 				for(int i=0; i<lines; i++){
@@ -116,6 +121,7 @@ public class MapEditor extends JFrame implements ActionListener, ComponentListen
 			}
 		};
 		layerp[4]=new JPanel(){
+			private static final long serialVersionUID = 1L;
 			protected void paintComponent(Graphics g){
 				super.paintComponent(g);
 				for(int i=0; i<lines; i++){
@@ -127,6 +133,7 @@ public class MapEditor extends JFrame implements ActionListener, ComponentListen
 			}
 		};
 		layerp[5]=new JPanel(){
+			private static final long serialVersionUID = 1L;
 			protected void paintComponent(Graphics g){
 				super.paintComponent(g);
 				for(int i=0; i<lines; i++){
@@ -215,6 +222,7 @@ public class MapEditor extends JFrame implements ActionListener, ComponentListen
 			layerc[i].setSelected(true);
 			p3.add(layerc[i]);
 		}
+		
 		layerc[0].addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {         
 				if(layerc[0].isSelected()){
@@ -271,7 +279,7 @@ public class MapEditor extends JFrame implements ActionListener, ComponentListen
 					layerp[5].setVisible(false);
 			}           
 		});
-
+		layerc[5].setSelected(false);
 	}
 
 	@Override
@@ -367,7 +375,7 @@ public class MapEditor extends JFrame implements ActionListener, ComponentListen
 					for(int i=0; i<n; i++){ 
 						for(int j=0; j<n; j++){
 							//num[i][j]=n;
-							int a = num[p][i][j]/100, b = num[p][i][j]%100;
+							//int a = num[p][i][j]/100, b = num[p][i][j]%100;
 							//System.out.println("num["+i+"]["+j+"]="+num[i][j]);
 							//System.out.println(a+" "+b);
 							//btn2[i][j].setIcon(new ImageIcon(Tiles.getImage(a, b)));
