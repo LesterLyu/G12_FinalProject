@@ -24,11 +24,11 @@ class Final_V0_01 extends Canvas implements Runnable{
 	private static final long serialVersionUID = 1L;
 
 	static int lines = 0;
-	int xa=0,ya=-384;
+	static int xa=0, ya=-384;
 
 	static int cnt_step;
 
-	int sprite_status=1;
+	static int sprite_status=1;
 
 	int cnt1 = 0;
 
@@ -37,8 +37,8 @@ class Final_V0_01 extends Canvas implements Runnable{
 	static File maptxt[] = new File[6];
 	public boolean leftMove=false, rightMove=false, upMove=false, downMove=false, walking=false, pressed=false;
 	//private static Insets insets;
-	static int read_width = 32, read_height = 32, read_row = 115, read_col = 54, step = 0;
-	Sprites sprite[]=new Sprites[12];
+	static int read_width = 32, read_height = 32, read_row = 115, read_col = 70, step = 0;
+	static Sprites sprite[]=new Sprites[12];
 	int num[][][], keyPressed = -1;
 	JFrame frame;
 	public static int width = 250, height = width/4*3, scale = 3;
@@ -52,12 +52,16 @@ class Final_V0_01 extends Canvas implements Runnable{
 	boolean temp = true, showConversation = false, showMenu = false;;
 	String text_con = "";
 	int text_cnt = 0, menu_p = 0;
-	boolean zFirst = true, enterFirst = true,upFirst = true, downFirst = true, zFirst2 = true;;
+	boolean zFirst = true, enterFirst = true,upFirst = true, downFirst = true, zFirst2 = true,inBuilding=false;
+	Tiles tiles;
+	Buildings home = new Buildings("Home");
+	
 	//Dennis
 	Battle battle;
 	//debug only
 	JFrame debugFrame = new JFrame();
 	JLabel dl[] = new JLabel[10];
+
 
 	public Final_V0_01(String title){
 
@@ -69,14 +73,15 @@ class Final_V0_01 extends Canvas implements Runnable{
 
 		//
 		for(int i=0; i<6; i++){
-			maptxt[i] = new File("src/Map"+i+".txt");
+			maptxt[i] = new File("src/map/Map"+i+".txt");
 		}
 		try {
 			lines = readLines();
 		} catch (IOException e2) {
 			e2.printStackTrace();
 		}
-		Tiles.readPng();
+		tiles = new Tiles(lines);
+		
 		num = new int[6][lines][lines];
 
 		try {
@@ -105,7 +110,7 @@ class Final_V0_01 extends Canvas implements Runnable{
 		debugFrame.setVisible(true);
 
 		//
-		StartCon("Welcome to the Pokemon World!\nPress \"Z\" to contine.");
+		//StartCon("Welcome to the Pokemon World!\nPress \"Z\" to contine.");
 
 		//
 		battle = new Battle();
@@ -156,7 +161,7 @@ class Final_V0_01 extends Canvas implements Runnable{
 
 	}
 	public void update(){
-		cnt_step++;
+		
 		dl[3].setText("keyPressed: "+(char)keyPressed);
 
 		if(!showMenu&&!showConversation){//Check Keys
@@ -315,16 +320,21 @@ class Final_V0_01 extends Canvas implements Runnable{
 		}
 
 		if(walking){
+			cnt_step++;
+			System.out.println("Walking");
 			if(keyPressed=='l'&&temp){
 				walking = true;
 				cnt1+=2;
-				xa+=2;
+				if(!inBuilding)
+					xa+=2;
+				else
+					home.xa+=2;
 				if(cnt_step<=1)
 					sprite_status=4;
 				if(cnt_step>=10&&cnt_step<20){
 					sprite_status=5;
 				}
-				else if(cnt_step>=20){
+				if(cnt_step>=20){
 					sprite_status=6;
 					cnt_step=1;
 				}
@@ -341,7 +351,10 @@ class Final_V0_01 extends Canvas implements Runnable{
 			else if(keyPressed=='r'&&temp){
 				walking = true;
 				cnt1+=2;
-				xa-=2;
+				if(!inBuilding)
+					xa-=2;
+				else
+					home.xa-=2;
 				if(cnt_step<=1)
 					sprite_status=7;
 				if(cnt_step>=10&&cnt_step<20){
@@ -363,7 +376,10 @@ class Final_V0_01 extends Canvas implements Runnable{
 			else if(keyPressed=='u'&&temp){
 				walking = true;
 				cnt1+=2;
-				ya+=2;
+				if(!inBuilding)
+					ya+=2;
+				else
+					home.ya+=2;
 				if(cnt_step<=1)
 					sprite_status=10;
 				if(cnt_step>=10&&cnt_step<20){
@@ -384,7 +400,10 @@ class Final_V0_01 extends Canvas implements Runnable{
 			else if(keyPressed=='d'&&temp){
 				walking = true;
 				cnt1+=2;
-				ya-=2;
+				if(!inBuilding)
+					ya-=2;
+				else
+					home.ya-=2;
 				if(cnt_step<=1)
 					sprite_status=1;
 				if(cnt_step>=10&&cnt_step<20){
@@ -404,12 +423,23 @@ class Final_V0_01 extends Canvas implements Runnable{
 			}
 		}
 		else{
+			
+			if(sprite_status==5||sprite_status==6)
+				sprite_status=4;
+			if(sprite_status==2||sprite_status==3)
+				sprite_status=1;
+			if(sprite_status==8||sprite_status==9)
+				sprite_status=7;
+			if(sprite_status==12||sprite_status==11)
+				sprite_status=10;
 			//System.out.println(nextLocationX()+" "+nextLocationY());
 			if(nextLocationX()==10&&nextLocationY()==17&&keyPressed=='u'){
 				num[3][17][10] = 2116;
 
-				Tiles.combineTiles(17, 10, num[0][17][10], num[1][17][10], num[2][17][10], num[3][17][10]);
-				num[5][17][10] = 351;
+				tiles.combineTiles(17, 10, num[0][17][10], num[1][17][10], num[2][17][10], num[3][17][10]);
+				//num[5][17][10] = 351;
+				inBuilding=true;
+
 			}
 			else if(nextLocationX()==14&&nextLocationY()==17&&(k.upKey||k.zKey)){
 				if(zFirst2){
@@ -453,27 +483,30 @@ class Final_V0_01 extends Canvas implements Runnable{
 			createBufferStrategy(3); //triple buffering 
 			return;
 		}
-
-
 		for(int i=0; i<pixels.length; i++){
 			pixels[i] =  0xffffff;
 		}
 
 		Graphics g = bs.getDrawGraphics();
-		g.drawImage(image, 0, 0, width*scale, height*scale, null);
-		//System.out.println(insets);
+		if(!inBuilding){
+			g.drawImage(image, 0, 0, width*scale, height*scale, null);
+			//System.out.println(insets);
 
-		for(int i=0; i<lines; i++){
-			for(int j=0; j<lines; j++){
-				g.drawImage(Tiles.getCombinedTile(i, j), xa+0+j*32, ya+0+i*32,32,32,null);// layers 0-3
+			for(int i=0; i<lines; i++){
+				for(int j=0; j<lines; j++){
+					g.drawImage(tiles.getCombinedTile(i, j), xa+0+j*32, ya+0+i*32,32,32,null);// layers 0-3
+				}
+			}
+			g.drawImage(sprite[0].getImage(sprite_status), 384,279,32,48,null);
+			for(int i=0; i<lines; i++){
+				for(int j=0; j<lines; j++){
+					int a = num[4][i][j]/100, b = num[4][i][j]%100;
+					g.drawImage(Tiles.getImage(a, b), xa+0+j*32, ya+0+i*32,32,32,null);// layers 4
+				}
 			}
 		}
-		g.drawImage(sprite[0].getImage(sprite_status), 376,250,48,64,null);
-		for(int i=0; i<lines; i++){
-			for(int j=0; j<lines; j++){
-				int a = num[4][i][j]/100, b = num[4][i][j]%100;
-				g.drawImage(Tiles.getImage(a, b), xa+0+j*32, ya+0+i*32,32,32,null);// layers 4
-			}
+		else{
+			home.render(g);
 		}
 		Graphics2D g2d = (Graphics2D)g;
 		//System.out.println(xa+" "+ya);  //coordinate
@@ -510,7 +543,7 @@ class Final_V0_01 extends Canvas implements Runnable{
 			g2d.setColor(new Color(107,100,125));
 			g2d.fillOval(width*scale-120+10, 122+menu_p*30, 10, 10);
 			g2d.setFont(new Font("", Font.PLAIN, 20)); 
-			g2d.drawString("¹ÖÊÞ", width*scale-120+20, 135);
+			g2d.drawString("Poke", width*scale-120+20, 135);
 			g2d.drawString("Bag", width*scale-120+20, 135+30);
 			g2d.drawString("Money", width*scale-120+20, 135+60);
 			g2d.drawString("Save", width*scale-120+20, 135+90);
@@ -574,7 +607,7 @@ class Final_V0_01 extends Canvas implements Runnable{
 		}
 		for(int i=0; i<lines; i++){
 			for(int j=0; j<lines; j++){
-				Tiles.combineTiles(i, j, num[0][i][j], num[1][i][j], num[2][i][j], num[3][i][j]);
+				tiles.combineTiles(i, j, num[0][i][j], num[1][i][j], num[2][i][j], num[3][i][j]);
 			}
 		}
 	}
@@ -583,26 +616,50 @@ class Final_V0_01 extends Canvas implements Runnable{
 	public boolean isWalkabel(char n){//l left, r right, u up, d down
 		boolean res = false;
 
+
 		if(lastChecked==n&&walking)
 			return true;
-		switch(n){
-		case 'l':
-			if(num[5][getLocationY()][getLocationX()-1]==351)
-				res = true;
-			break;	
-		case 'r':
-			if(num[5][getLocationY()][getLocationX()+1]==351)
-				res = true;
-			break;
-		case 'u':
-			if(num[5][getLocationY()-1][getLocationX()]==351)
-				res = true;
-			break;
-		case 'd':
-			if(num[5][getLocationY()+1][getLocationX()]==351)
-				res = true;
-			break;
+		if(!inBuilding){
+			switch(n){
+			case 'l':
+				if(num[5][getLocationY()][getLocationX()-1]==351)
+					res = true;
+				break;	
+			case 'r':
+				if(num[5][getLocationY()][getLocationX()+1]==351)
+					res = true;
+				break;
+			case 'u':
+				if(num[5][getLocationY()-1][getLocationX()]==351)
+					res = true;
+				break;
+			case 'd':
+				if(num[5][getLocationY()+1][getLocationX()]==351)
+					res = true;
+				break;
 
+			}
+		}
+		else{
+			switch(n){
+			case 'l':
+				if(home.num[5][getLocationY()][getLocationX()-1]==351)
+					res = true;
+				break;	
+			case 'r':
+				if(home.num[5][getLocationY()][getLocationX()+1]==351)
+					res = true;
+				break;
+			case 'u':
+				if(home.num[5][getLocationY()-1][getLocationX()]==351)
+					res = true;
+				break;
+			case 'd':
+				if(home.num[5][getLocationY()+1][getLocationX()]==351)
+					res = true;
+				break;
+
+			}
 		}
 		//System.out.println(" "+res);
 		lastChecked = n;
@@ -649,11 +706,17 @@ class Final_V0_01 extends Canvas implements Runnable{
 	}
 	public int getLocationX(){
 		//System.out.println(-xa/32+12);
-		return -xa/32 +12;
+		if(!inBuilding)
+			return -xa/32 +12;
+		else
+			return -home.xa/32 +12;
 	}
 	public int getLocationY(){
 		//System.out.println(-ya/32+9);
-		return -ya/32+9;
+		if(!inBuilding)
+			return -ya/32+9;
+		else
+			return -home.ya/32+9;
 	}
 
 

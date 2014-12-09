@@ -10,39 +10,21 @@ public class Tiles {
 	BufferedImage img;
 	static ImageIcon basei = new ImageIcon(Tiles.class.getResource("f96651.png"));
 	static BufferedImage base = ImageIconToBufferedImage(basei);
-	static int read_width = 32, read_height = 32, read_row = 115, read_col = 54;
-	static BufferedImage tile[][] = new BufferedImage[read_row][read_col], combinedTile[][] = new BufferedImage[Final_V0_01.lines][Final_V0_01.lines];
-	Graphics2D g2;
+	static int read_width = 32, read_height = 32, read_row = 115, read_col = 70;
+	static BufferedImage tile[][] = new BufferedImage[read_row][read_col];
+	BufferedImage combinedTile[][];
+	Graphics2D g;
 	
-	private String path;
-	public final int SIZEX, SIZEY;
-	public int[] pixels;
-	
-	public static Tiles tiles = new Tiles("f96651.png",1728, 3682);
-	
-	public Tiles(String path, int sizeX, int sizeY){
-		this.path = path;
-		this.SIZEX = sizeX;
-		this.SIZEY = sizeY;
-		pixels = new int [SIZEX*SIZEY];
-		load();
-	}
-	
-	private void load(){
-		try {
-			BufferedImage image = ImageIO.read(TileSets.class.getResource(path));
-			int w = image.getWidth(), h = image.getHeight();
-			image.getRGB(0, 0, w, h, pixels, 0, w);//translate image to pixels
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
+	public Tiles(int mapLines){
+		combinedTile = new BufferedImage[mapLines][mapLines];
+		if(tile[0][0]==null)
+			readPng();
 	}
 	
 	public static BufferedImage getImage(int x, int y){
 		return tile[x][y];
 	}
-	public static BufferedImage getCombinedTile(int x, int y){
+	public BufferedImage getCombinedTile(int x, int y){
 		return combinedTile[x][y];
 	}
 	public static void readPng(){
@@ -61,7 +43,7 @@ public class Tiles {
 		g1.dispose();
 		return bufferedimage;
 	}
-	public static void combineTiles(int i, int j, int a, int b, int c, int d){
+	public void combineTiles(int i, int j, int a, int b, int c, int d){
 		int ax = a/100, ay = a%100, bx = b/100, by = b%100, cx = c/100, cy = c%100, dx = d/100, dy = d%100;
 		BufferedImage bufferedimage;
 		bufferedimage = new BufferedImage(read_width,read_height,BufferedImage.TYPE_INT_ARGB);
