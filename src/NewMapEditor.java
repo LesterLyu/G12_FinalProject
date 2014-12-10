@@ -423,7 +423,7 @@ public class NewMapEditor extends JFrame implements ActionListener, ComponentLis
 			text.setText("");
 		}
 		else if(e.getSource()==b7){
-			final Final_V0_01 game = new Final_V0_01("BETA");  
+			final Final game = new Final("BETA");  
 			game.c.add(game);
 			game.frame.pack();
 			game.frame.setVisible(true);           

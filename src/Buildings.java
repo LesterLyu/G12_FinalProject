@@ -52,7 +52,7 @@ public class Buildings {
 				g.drawImage(tiles.getCombinedTile(i, j), xa+0+j*32, ya+0+i*32,32,32,null);// layers 0-3
 			}
 		}
-		g.drawImage(Final_V0_01.sprite[0].getImage(Final_V0_01.sprite_status), 384,279,32,48,null);
+		g.drawImage(Final.sprite[0].getImage(Final.sprite_status), 384,279,32,48,null);
 		for(int i=0; i<lines; i++){
 			for(int j=0; j<lines; j++){
 				int a = num[4][i][j]/100, b = num[4][i][j]%100;

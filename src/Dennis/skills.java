@@ -29,7 +29,8 @@ class skills{
 	chart[3][2] = 0.5;
   }
   public void start(){
-    skillImage = new ImageIcon(name+".png");
+	  System.out.println(name);
+    skillImage = new ImageIcon(getClass().getResource(name+".png"));
 	currentPP = maxPP;
   }
   //int requiredLevel;
@@ -144,7 +145,7 @@ class Razorleaf extends skills{
 	maxPP = 35;
 	width = 70;
 	height = 55;
-	start();
+	//start();
   }
 }
 

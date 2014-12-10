@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.*;
 
 class pokemon{
   public skills sk[] = new skills[3];
@@ -14,6 +15,7 @@ class pokemon{
   public int stamina;
   public int speed;
   public int attribute;
+  public boolean sex;
   public static int maxAttack;
   public static int minAttack;
   public static int maxDefense;
@@ -21,7 +23,7 @@ class pokemon{
   public static int minStamina;
   public static int maxSpeed;
   public int FImageW,FImageH,BImageW, BImageH;
-  public ImageIcon front,back,image;
+  public ImageIcon front,back,image1,image2;
   //public abstract void attack(int n){}
   //public abstract void levelup(){}
   public void initialize(){
@@ -45,17 +47,24 @@ class pokemon{
 	  }
 	  sk[i] = getSkills(randomSkill);//randomSkill);
 	}
+	int random = (int)(Math.random()*2);
+	if (random==0)
+	  sex = true;
+	else 
+	  sex = false;
     attack = minAttack+maxAttack*level/50;
 	defense = maxDefense*level/50;
 	stamina = minStamina+maxStamina*level/50;
 	health = stamina;
 	speed = maxSpeed*level/50;
-	experience = 180;
 	maxExperience = 50;
 	for (int i=0;i<level;i++){
 	  maxExperience += 10;
 	}
-	image = new ImageIcon(getClass().getResource(name+".png"));
+	experience = maxExperience;
+	ImageIcon image = new ImageIcon(getClass().getResource(name+".png"));
+	image1 = new ImageIcon(ImageIconToBufferedImage(image).getSubimage(0,0,64,64));
+	image2 = new ImageIcon(ImageIconToBufferedImage(image).getSubimage(64,0,64,64));
 	front = new ImageIcon(getClass().getResource(name+"Front.png"));
 	back = new ImageIcon(getClass().getResource(name+"Back.png"));
 	FImageW = FImageH = BImageW = BImageH = 64;
@@ -100,6 +109,14 @@ class pokemon{
 	else{
 	  return false;
 	}
+  }
+  public BufferedImage ImageIconToBufferedImage(ImageIcon imageicon) {
+		BufferedImage bufferedimage;
+		bufferedimage = new BufferedImage(imageicon.getIconWidth(),imageicon.getIconHeight(),BufferedImage.TYPE_INT_ARGB);
+		Graphics g1 = bufferedimage.createGraphics();
+		imageicon.paintIcon(null, g1, 0, 0);
+		g1.dispose();
+		return bufferedimage;
   }
 }
 

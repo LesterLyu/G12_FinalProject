@@ -28,6 +28,7 @@ public class KeyBoard implements KeyListener {
 		}
 		if(key==KeyEvent.VK_Z){
 			zKey=true;
+			System.out.println("z pressed");
 		}
 		if(key==KeyEvent.VK_X){
 			xKey=true;
@@ -43,22 +44,24 @@ public class KeyBoard implements KeyListener {
 		pressed = false;
 		if(key==KeyEvent.VK_LEFT||key==KeyEvent.VK_A){
 			leftKey=false;
-			Final_V0_01.cnt_step=4;
+			Final.cnt_step=4;
 		}
 		if(key==KeyEvent.VK_RIGHT||key==KeyEvent.VK_D){
 			rightKey=false;
-			Final_V0_01.cnt_step=7;
+			Final.cnt_step=7;
 		}
 		if(key==KeyEvent.VK_DOWN||key==KeyEvent.VK_S){
 			downKey=false;
-			Final_V0_01.cnt_step=10;
+			Final.cnt_step=10;
 		}
 		if(key==KeyEvent.VK_UP||key==KeyEvent.VK_W){
 			upKey=false;
-			Final_V0_01.cnt_step=1;
+			Final.cnt_step=1;
 		}
 		if(key==KeyEvent.VK_Z){
 			zKey=false;
+
+			System.out.println("z released");
 		}
 		if(key==KeyEvent.VK_X){
 			xKey=false;

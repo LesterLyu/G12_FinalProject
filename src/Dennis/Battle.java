@@ -6,39 +6,60 @@ class Battle{
 	static You you;
 	static MyFrame j;
 	static PokemonFrame p;
-	public Battle(){
-		you = new You();
-		p = new PokemonFrame();
-		p.setSize(500,400);
-		p.setVisible(false);
-		p.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-		j = new MyFrame();
-		j.setSize(500,400);
-		j.setVisible(false);
-		j.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-	}
+	static int frameNum = 1;
 	public static void main(String[] args){
 		you = new You();
 		j = new MyFrame();
 		p = new PokemonFrame();
-		p.setSize(500,400);
+		p.setSize(800,600);
 		p.setVisible(false);
 		p.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		j.setSize(500,400);
+		j.setSize(800,600);
 		j.setVisible(true);
 		j.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 	}
+	//Lester added
+	public Battle(){
+		you = new You();
+		j = new MyFrame();
+		p = new PokemonFrame();
+		p.setSize(800,600);
+		p.setVisible(false);
+		p.addWindowListener(
+				new WindowAdapter() {
+					public void windowClosing( WindowEvent e )
+					{
+						p.setVisible(false);
+						p.t.stop();
+						Final.frame.setVisible(true);
+						Final.inPokeFrame=false;
+					}
+				}
+				); //
+		p.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		j.setSize(800,600);
+		j.setVisible(false);
+		j.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+	}
+	public void toPokeFrame() {
+		frameNum=2;
+		p.t.start();
+		p.setVisible(true);
+		Final.frame.setVisible(false);
+		Final.k.zKey=false;
+	}
+	//End Lester added
 }
 
 class MyFrame extends JFrame implements ComponentListener,KeyListener,ActionListener{
 	public JPanel p2,p3,p4,p5,p6;
 	public MyPanel p1;
-	public JLabel l1,l2,l3,l4,l5,l11,l12,l13,label1,label2,label3;
+	public JLabel l1,l2,l3,l4,l5,l11,l12,l13,label1,label2,label3,label4;
 	public JButton b1,b2,b3,b4,b5,b6,b7,b8;
 	public String s[] = new String[3];
 	public Container c;
 	public int count=0, second = 0, count2=0;
-	public int n,n1,n2,num,skillNum = 0,pp,m,interval,interval2;
+	public int n,n1,n2,num,skillNum = 1,pp,m,interval,interval2,interval3;
 	public boolean f,f1,f2,dead;
 	public double dps,eps;
 	public static Dimension d;
@@ -108,6 +129,9 @@ class MyFrame extends JFrame implements ComponentListener,KeyListener,ActionList
 	public void keyTyped(KeyEvent e){
 	}
 	public void actionPerformed(ActionEvent e){
+		s[0] = p[1].sk[0].name;
+		s[1] = p[1].sk[1].name;
+		s[2] = p[1].sk[2].name;
 		if (e.getSource() == b1){
 			p3.remove(l1);
 			b5 = new JButton (s[0]);
@@ -134,6 +158,8 @@ class MyFrame extends JFrame implements ComponentListener,KeyListener,ActionList
 		}
 		else if (e.getSource() == b3){
 			setVisible(false);
+			Battle.frameNum = 1;
+			Battle.p.t.start();
 			Battle.p.setVisible(true);
 		}
 		else if (e.getSource() == b4){
@@ -177,10 +203,12 @@ class MyFrame extends JFrame implements ComponentListener,KeyListener,ActionList
 			p3.remove(b6);
 			p3.remove(b7);
 			p3.remove(b8);
+			p3.setLayout(new GridLayout(2,2));
 			p3.add(l1);
 			p4.remove(label1);
 			p4.remove(label2);
 			p4.remove(label3);
+			p4.remove(label4);
 			p4.setLayout(new GridLayout(2,2));
 			p4.add(b1);
 			p4.add(b2);
@@ -190,18 +218,8 @@ class MyFrame extends JFrame implements ComponentListener,KeyListener,ActionList
 			p3.setVisible(true);
 			p4.setVisible(false);
 			p4.setVisible(true);
+			skillNum = 1;
 		}
-	}
-	public pokemon pokegen(int type, int level){
-		switch (type){
-		case 1: return new Charmander(level);
-		case 2: return new Bulbasaur(level);
-		case 3: return new Squirtle(level);
-		case 4: return new Chikorita(level);
-		case 5: return new Cyndaquil(level);
-		case 6: return new Totodile(level);
-		}
-		return new Charmander(level);
 	}
 	public void skillEffect(String s, int num1, int num2, boolean flag, boolean flag1){
 		final Timer t1 = new Timer(50,null);
@@ -331,6 +349,7 @@ class MyFrame extends JFrame implements ComponentListener,KeyListener,ActionList
 				index = i;
 			}
 		}
+		System.out.println("Enemy attack!");
 		skillEffect(p[0].sk[index].name,index,0,flag,flag1);
 	}
 	public void performSkill(int num){
@@ -346,10 +365,11 @@ class MyFrame extends JFrame implements ComponentListener,KeyListener,ActionList
 			f1 = false;
 		}
 		second = 0;
+		interval3 = interval;
 		t2.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
 				second++;
-				if (second>interval+33 && second<=interval+34){
+				if (second>interval3+33 && second<=interval3+34){
 					dead = die();
 					if (!dead){
 						if (f1){
@@ -357,7 +377,6 @@ class MyFrame extends JFrame implements ComponentListener,KeyListener,ActionList
 						}
 						else {
 							skillEffect(s[n2],n2,1,false,true);
-
 						}
 					}
 				}
@@ -371,6 +390,7 @@ class MyFrame extends JFrame implements ComponentListener,KeyListener,ActionList
 	}
 	public void panel(int n){
 		int num;
+		String s = "";
 		if (n == -1){
 			num = 0;
 		} else {
@@ -378,17 +398,38 @@ class MyFrame extends JFrame implements ComponentListener,KeyListener,ActionList
 			p4.remove(label1);
 			p4.remove(label2);
 			p4.remove(label3);
+			p4.remove(label4);
 		}
-		label1 = new JLabel("PP: "+p[1].sk[num].currentPP+"/"+p[1].sk[num].maxPP);
-		label2 = new JLabel("Power: "+p[1].sk[num].damage+"/100");
-		label3 = new JLabel("Special Effect: "+p[1].sk[num].explaination);
+		label1 = new JLabel();
+		label1.setOpaque(true);
+		if (p[1].sk[num].attribute == 1){
+			s = "Fire";
+			label1.setBackground(Color.RED);
+			repaint();
+		} else if (p[1].sk[num].attribute == 2){
+			s = "Grass";
+			label1.setBackground(Color.GREEN);
+			repaint();
+		} else if (p[1].sk[num].attribute == 3){
+			s = "Water";
+			label1.setBackground(Color.BLUE);
+			repaint();
+		} else{
+			s = "Normal";
+		}
+		label1.setText("Attribute: "+s);
+		label2 = new JLabel("PP: "+p[1].sk[num].currentPP+"/"+p[1].sk[num].maxPP);
+		label3 = new JLabel("Power: "+p[1].sk[num].damage+"/100");
+		label4 = new JLabel("Special Effect: "+p[1].sk[num].explaination);
 		label1.setHorizontalAlignment(SwingConstants.CENTER);
 		label2.setHorizontalAlignment(SwingConstants.CENTER);
 		label3.setHorizontalAlignment(SwingConstants.CENTER);
-		p4.setLayout(new GridLayout(3,1));
+		label4.setHorizontalAlignment(SwingConstants.CENTER);
+		p4.setLayout(new GridLayout(4,1));
 		p4.add(label1);
 		p4.add(label2);
 		p4.add(label3);
+		p4.add(label4);
 		p4.setVisible(false);
 		p4.setVisible(true);
 	}
@@ -448,7 +489,8 @@ class MyFrame extends JFrame implements ComponentListener,KeyListener,ActionList
 				}
 				else if (count2>50+interval2){
 					t1.stop();
-					restart();
+					//restart();
+					wild();
 				}
 			}
 		});
@@ -490,12 +532,46 @@ class MyFrame extends JFrame implements ComponentListener,KeyListener,ActionList
 			return false;
 		}
 	}
-	public void restart(){
-		setVisible(false);
-		MyFrame j1 = new MyFrame();
-		j1.setVisible(true);
-		j1.setSize(500,400);
-		j1.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+	/*public void restart(){
+    setVisible(false);
+    MyFrame j1 = new MyFrame();
+	j1.setVisible(true);
+	j1.setSize(500,400);
+	j1.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+  }*/
+	public void wild(){
+		p[0] = pokegen((int)(Math.random()*6)+1,(int)(Math.random()*50)+1);
+		MyPanel.health[0] = 1;
+		MyPanel.y[2] = 0;
+		p3.remove(l11);
+		p3.remove(l12);
+		p3.setLayout(new GridLayout(2,2));
+		p3.add(l1);
+		p4.remove(label1);
+		p4.remove(label2);
+		p4.remove(label3);
+		p4.remove(label4);
+		p4.setLayout(new GridLayout(2,2));
+		p4.add(b1);
+		p4.add(b2);
+		p4.add(b3);
+		p4.add(b4);
+		p3.setVisible(false);
+		p3.setVisible(true);
+		p4.setVisible(false);
+		p4.setVisible(true);
+		skillNum = 1;
+	}
+	public pokemon pokegen(int type, int level){
+		switch (type){
+		case 1: return new Charmander(level);
+		case 2: return new Bulbasaur(level);
+		case 3: return new Squirtle(level);
+		case 4: return new Chikorita(level);
+		case 5: return new Cyndaquil(level);
+		case 6: return new Totodile(level);
+		}
+		return new Charmander(level);
 	}
 }
 
@@ -525,18 +601,13 @@ class MyPanel extends JPanel implements ActionListener,ComponentListener{
 	}
 	protected void paintComponent(Graphics g){
 		super.paintComponent(g);
-//		Graphics2D g2d = (Graphics2D)g;
-//		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, // Anti-alias!
-//				RenderingHints.VALUE_ANTIALIAS_ON);
-//		g2d.setRenderingHint(RenderingHints.KEY_RENDERING, 
-//				RenderingHints.VALUE_RENDER_QUALITY);
 		i2 = MyFrame.p[0].front;
 		i3 = MyFrame.p[1].back;
 		g.drawImage(i1.getImage(), 0, 0 ,MyFrame.d.width,MyFrame.d.height, null);
 		if(show[0])
 			g.drawImage(i2.getImage(),(int)x[2],(int)y[2],MyFrame.d.width/2*MyFrame.p[0].FImageW/100,MyFrame.d.height*MyFrame.p[0].FImageH/100,null);
 		if (show[1])
-			g.drawImage(i3.getImage(),(int)x[3],(int)y[3],MyFrame.d.width/2*MyFrame.p[1].BImageW/100,MyFrame.d.height*MyFrame.p[1].BImageH/100,null);
+			g.drawImage(i3.getImage(),(int)x[3],(int)(y[3]-50),MyFrame.d.width/2*MyFrame.p[1].BImageW/100,MyFrame.d.height*MyFrame.p[1].BImageH/100,null);
 		if (showSkill[1]){
 			g.drawImage(MyFrame.p[1].sk[skillNum].skillImage.getImage(),(int)x[2],(int)y[2],MyFrame.d.width/2*MyFrame.p[1].sk[skillNum].width/100,MyFrame.d.height*MyFrame.p[1].sk[skillNum].height/100,null);
 		}
@@ -553,28 +624,27 @@ class MyPanel extends JPanel implements ActionListener,ComponentListener{
 				x1 = MyFrame.d.width/5*3;
 				y1 = MyFrame.d.height/5*3;
 			}
-			g.setColor(Color.WHITE);
-			g.fillRect(x1,y1,MyFrame.d.width/5*2,90);
-			Graphics2D g2 = (Graphics2D) g;
-			g2.setStroke(new BasicStroke(5));
-			g2.setColor(Color.BLACK);
-			g2.drawRect(x1,y1,MyFrame.d.width/5*2,90);
-			g.setColor(Color.BLACK);
-			g.fillRect(x1+30,y1+30,MyFrame.d.width/5*2-50,20);
-			g.fillRect(x1+30,y1+55,MyFrame.d.width/5*2-50,10);
+			g.drawImage(new ImageIcon(getClass().getResource("battleBar.png")).getImage(),x1,y1,MyFrame.d.width/5*2,90,null);
 			g.setColor(Color.YELLOW);
 			if (health[i]>0){
-				g.fillRect(x1+30,y1+30,(int)((MyFrame.d.width/5*2-50)*health[i]),20);
+				g.fillRect(x1+160,y1+40,(int)((120)*health[i]),8);
 			}
-			g.setColor(Color.BLUE);
-			g.fillRect(x1+30,y1+55,(MyFrame.d.width/5*2-50)*MyFrame.p[i].experience/MyFrame.p[i].maxExperience,10);
+			if (i==1){
+				g.setColor(Color.BLUE);
+				g.fillRect(x1+48,y1+80,(230)*MyFrame.p[i].experience/MyFrame.p[i].maxExperience,5);
+			}
+			if (MyFrame.p[i].sex)
+				g.drawImage(new ImageIcon(getClass().getResource("male.png")).getImage(),x1+60,y1+40,35,35,null);
+			else
+				g.drawImage(new ImageIcon(getClass().getResource("female.png")).getImage(),x1+60,y1+40,25,25,null);
 		}
 		g.setColor(Color.BLACK);
-		g.drawString(MyFrame.p[0].name,30,40);
-		g.drawString("Level "+MyFrame.p[0].level+"",150,40);
-		g.drawString(MyFrame.p[1].name,MyFrame.d.width/5*3+10,MyFrame.d.height/5*3+20);
-		g.drawString("Level "+MyFrame.p[1].level+"",MyFrame.d.width/5*3+130,MyFrame.d.height/5*3+20);
-		g.drawString(MyFrame.p[1].health+"/"+MyFrame.p[1].stamina,MyFrame.d.width/5*3+80,MyFrame.d.height/5*3+80);
+		g.setFont(new Font("Arial", Font.BOLD, 16));
+		g.drawString(MyFrame.p[0].name,80,50);
+		g.drawString("Level "+MyFrame.p[0].level+"",230,50);
+		g.drawString(MyFrame.p[1].name,MyFrame.d.width/5*3+80,MyFrame.d.height/5*3+30);
+		g.drawString("Level "+MyFrame.p[1].level+"",MyFrame.d.width/5*3+230,MyFrame.d.height/5*3+30);
+		g.drawString(MyFrame.p[1].health+"/"+MyFrame.p[1].stamina,MyFrame.d.width/5*3+200,MyFrame.d.height/5*3+70);
 	}
 	public void componentResized(ComponentEvent e){
 		x[2] = MyFrame.d.width/5*3; 
