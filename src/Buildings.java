@@ -1,11 +1,15 @@
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Scanner;
+
+import javax.swing.JOptionPane;
 
 
 public class Buildings {
@@ -13,15 +17,19 @@ public class Buildings {
 	int num[][][], xa, ya;
 	int read_width = 32, read_height = 32;
 	static int lines;
-	File maptxt[] = new File[6];
+	BufferedReader maptxt[] = new BufferedReader[6];
 	public static int width = 250, height = width/4*3, scale = 3;
 	private BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 	private int[] pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 	private Tiles tiles;
+	private String mapName;
 	public Buildings(String mapName){
+		this.mapName = mapName;
 		for(int i=0; i<6; i++){
-			maptxt[i] = new File("src/map/"+mapName+i+".txt");
-			System.out.println(maptxt[i]);
+			
+			maptxt[i]=new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("map/"+mapName+i+".txt")));
+			
+
 		}
 		try {
 			lines = readLines();
@@ -63,44 +71,37 @@ public class Buildings {
 	
 	public int readLines() throws IOException{
 		int cnt =0;
-		if (maptxt[0].exists()){
-			System.out.println("Map existed");
-			Scanner sc = new Scanner(maptxt[0]);
-			ArrayList <String> line = new ArrayList <String>();
-			while(sc.hasNextLine()){
-				line.add(sc.nextLine());
-				cnt++;
-			}
-			sc.close();
-
+		String text;
+		ArrayList <String> line = new ArrayList <String>();
+		while((text=maptxt[0].readLine())!=null){
+			line.add(text);
+			cnt++;
 		}
-		System.out.println("Lines: "+cnt);
+		System.out.println("lines:"+cnt);
+		maptxt[0]=new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("map/"+mapName+"0"+".txt")));
+
 		return cnt;
 	}
 	public void readMap() throws IOException{
+		String text;
 		for(int p=0; p<6; p++){
-			if (maptxt[p].exists()){
-				Scanner sc = new Scanner(maptxt[p]);
-				ArrayList <String> line = new ArrayList <String>();
-				int cnt=0;
-				while(sc.hasNextLine()){
-					line.add(sc.nextLine());
+			ArrayList <String> line = new ArrayList <String>();
+			int cnt=0;
+			try {
+				while((text=maptxt[p].readLine())!=null){
+					line.add(text);
 					cnt++;
 				}
+			} catch (IOException e) {}
+			String m[][] = new String[cnt][cnt];
+			for(int i=0; i<cnt; i++){
+				m[i]=line.get(i).split(",");
+			}
+			for(int i=0; i<cnt; i++){
+				for(int j=0; j<cnt; j++){
 
-				sc.close();
-				String m[][] = new String[cnt][cnt];
-				for(int i=0; i<cnt; i++){
-					m[i]=line.get(i).split(",");
+					num[p][i][j] = Integer.parseInt(m[i][j]);
 				}
-				for(int i=0; i<cnt; i++){
-					for(int j=0; j<cnt; j++){
-						
-						num[p][i][j] = Integer.parseInt(m[i][j]);
-					}
-				}
-
-				sc.close();
 			}
 		}
 		for(int i=0; i<lines; i++){

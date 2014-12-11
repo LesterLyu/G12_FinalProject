@@ -12,7 +12,7 @@ public class KeyBoard implements KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		int key = e.getExtendedKeyCode();
+		int key = e.getKeyCode();
 		pressed = true;
 		if(key==KeyEvent.VK_LEFT||key==KeyEvent.VK_A){
 			leftKey=true;
@@ -40,7 +40,7 @@ public class KeyBoard implements KeyListener {
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		int key = e.getExtendedKeyCode();
+		int key = e.getKeyCode();
 		pressed = false;
 		if(key==KeyEvent.VK_LEFT||key==KeyEvent.VK_A){
 			leftKey=false;

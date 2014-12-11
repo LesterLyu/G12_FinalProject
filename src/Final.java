@@ -9,9 +9,13 @@ import java.awt.*;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Scanner;
 import javax.swing.*;
@@ -34,7 +38,8 @@ class Final extends Canvas implements Runnable{
 
 	int lastChecked = -1;
 	int totalFrameCount = 0, fps=0;
-	static File maptxt[] = new File[6];
+	//static File maptxt[] = new File[6];
+	BufferedReader maptxt[] = new BufferedReader[6];
 	public boolean leftMove=false, rightMove=false, upMove=false, downMove=false, walking=false, pressed=false;
 	//private static Insets insets;
 	static int read_width = 32, read_height = 32, read_row = 115, read_col = 70, step = 0;
@@ -73,7 +78,14 @@ class Final extends Canvas implements Runnable{
 
 		//
 		for(int i=0; i<6; i++){
-			maptxt[i] = new File("src/map/Map"+i+".txt");
+			try{
+				maptxt[i]=new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("map/Map"+i+".txt")));
+			} catch(NullPointerException e){
+				System.out.println("Map doesn't exist. Please check the src folder.");
+				JOptionPane.showMessageDialog( null, "Map doesn't exist. Please check the src folder. This program will exit.", "ERROR", JOptionPane.ERROR_MESSAGE );
+				System.exit(0);
+			}
+
 		}
 		try {
 			lines = readLines();
@@ -165,9 +177,9 @@ class Final extends Canvas implements Runnable{
 	public void update(){
 
 		dl[3].setText("keyPressed: "+(char)keyPressed);
-		
-				
-				
+
+
+
 		if(!showMenu&&!showConversation){//Check Keys
 			if(k.leftKey){
 				if(keyPressed!='u'&&keyPressed!='d'&&keyPressed!='r')
@@ -186,8 +198,8 @@ class Final extends Canvas implements Runnable{
 					keyPressed='d';
 			}
 		}//end keys
-		
-		
+
+
 		else if(showMenu){
 			if(k.upKey){
 				if(upFirst){
@@ -239,11 +251,11 @@ class Final extends Canvas implements Runnable{
 			}
 			else if(!zFirst)
 				zFirst = true;
-			
+
 			if(k.xKey)
 				showMenu=false;
 		}
-	
+
 		else{
 			//other keys
 			if(k.zKey){
@@ -471,7 +483,7 @@ class Final extends Canvas implements Runnable{
 				}
 				else if(!k.zKey) 
 					zFirst2=true;
-				
+
 			}
 			if(inBuilding){
 				System.out.println(nextLocationX()+" "+nextLocationY());
@@ -500,8 +512,8 @@ class Final extends Canvas implements Runnable{
 		dl[3].setText("keyPressed: "+(char)keyPressed);
 		dl[4].setText("xa= "+xa+" ya= "+ya);
 		dl[5].setText("xa/= "+xa/32.0+" ya/= "+ya/32.0);
-		
-		
+
+
 		//Dennis
 		if(inPokeFrame){
 			if(k.xKey){
@@ -525,16 +537,19 @@ class Final extends Canvas implements Runnable{
 			g.drawImage(image, 0, 0, width*scale, height*scale, null);
 			//System.out.println(insets);
 
-			for(int i=0; i<lines; i++){
-				for(int j=0; j<lines; j++){
-					g.drawImage(tiles.getCombinedTile(i, j), xa+0+j*32, ya+0+i*32,32,32,null);// layers 0-3
+			for(int i=getLocationY()-12; i<getLocationY()+13; i++){
+				for(int j=getLocationX()-12; j<getLocationX()+13; j++){
+					if(i>=0&&j>=0)
+						g.drawImage(tiles.getCombinedTile(i, j), xa+0+j*32, ya+0+i*32,32,32,null);// layers 0-3
 				}
 			}
 			g.drawImage(sprite[0].getImage(sprite_status), 384,279,32,48,null);
-			for(int i=0; i<lines; i++){
-				for(int j=0; j<lines; j++){
-					int a = num[4][i][j]/100, b = num[4][i][j]%100;
-					g.drawImage(Tiles.getImage(a, b), xa+0+j*32, ya+0+i*32,32,32,null);// layers 4
+			for(int i=getLocationY()-12; i<getLocationY()+13; i++){
+				for(int j=getLocationX()-12; j<getLocationX()+13; j++){
+					if(i>=0&&j>=0){
+						int a = num[4][i][j]/100, b = num[4][i][j]%100;
+						g.drawImage(Tiles.getImage(a, b), xa+0+j*32, ya+0+i*32,32,32,null);// layers 4
+					}
 				}
 			}
 		}
@@ -591,51 +606,40 @@ class Final extends Canvas implements Runnable{
 		showConversation = true;
 		text_con = s;
 	}
-	public static int readLines() throws IOException{
+	public int readLines() throws IOException{
 		int cnt =0;
-		if (maptxt[0].exists()){
-
-			Scanner sc = new Scanner(maptxt[0]);
-			ArrayList <String> line = new ArrayList <String>();
-			while(sc.hasNextLine()){
-				line.add(sc.nextLine());
-				cnt++;
-			}
-			sc.close();
-
+		String text;
+		ArrayList <String> line = new ArrayList <String>();
+		while((text=maptxt[0].readLine())!=null){
+			line.add(text);
+			cnt++;
 		}
+		System.out.println("lines:"+cnt);
+		maptxt[0]=new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream("map/Map0.txt")));
+
 		return cnt;
 	}
 
 	public void readMap() throws FileNotFoundException{
-
+		String text;
 		for(int p=0; p<6; p++){
-			if (maptxt[p].exists()){
-				Scanner sc = new Scanner(maptxt[p]);
-				ArrayList <String> line = new ArrayList <String>();
-				int cnt=0;
-				while(sc.hasNextLine()){
-					line.add(sc.nextLine());
+			ArrayList <String> line = new ArrayList <String>();
+			int cnt=0;
+			try {
+				while((text=maptxt[p].readLine())!=null){
+					line.add(text);
 					cnt++;
 				}
-
-				sc.close();
-				String m[][] = new String[cnt][cnt];
-				for(int i=0; i<cnt; i++){
-					m[i]=line.get(i).split(",");
-				}
-				for(int i=0; i<cnt; i++){
-					for(int j=0; j<cnt; j++){
-
-						num[p][i][j] = Integer.parseInt(m[i][j]);
-					}
-				}
-				sc.close();
+			} catch (IOException e) {}
+			String m[][] = new String[cnt][cnt];
+			for(int i=0; i<cnt; i++){
+				m[i]=line.get(i).split(",");
 			}
-			else{
-				System.out.println("Map doesn't exist. Please check the src folder.");
-				JOptionPane.showMessageDialog( null, "Map doesn't exist. Please check the src folder. This program will exit.", "ERROR", JOptionPane.ERROR_MESSAGE );
-				System.exit(0);
+			for(int i=0; i<cnt; i++){
+				for(int j=0; j<cnt; j++){
+
+					num[p][i][j] = Integer.parseInt(m[i][j]);
+				}
 			}
 		}
 		for(int i=0; i<lines; i++){

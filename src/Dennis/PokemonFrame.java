@@ -12,6 +12,19 @@ class PokemonFrame extends JFrame implements ActionListener,ComponentListener{
 	Timer t;
 	int num = -1,i,fight = 0,count = 0;
 	boolean state = true;
+	ImageIcon rect = new ImageIcon(getClass().getResource("Rect.png"));
+	
+	
+	ImageIcon male =new ImageIcon(getClass().getResource("male.png"));
+	
+	
+	ImageIcon ball = new ImageIcon(getClass().getResource("Ball.png"));
+	
+	
+	ImageIcon female = new ImageIcon(getClass().getResource("female.png"));
+	
+	
+	ImageIcon hp = new ImageIcon(getClass().getResource("HP.png"));
 	public PokemonFrame(){
 		setSize(800,600);
 		d = getSize();
@@ -165,18 +178,18 @@ class PokemonFrame extends JFrame implements ActionListener,ComponentListener{
 		}
 	}
 	public void draw(Graphics g, int n){
-		g.drawImage(new ImageIcon(getClass().getResource("Rect.png")).getImage(),0,0,d1.width,d1.height,null);
-		g.drawImage(new ImageIcon(getClass().getResource("Ball.png")).getImage(),20,0,60,75,null);
-		g.drawImage(new ImageIcon(getClass().getResource("HP.png")).getImage(),120,65,250,30,null);
+		g.drawImage(rect.getImage(),0,0,d1.width,d1.height,null);
+		g.drawImage(ball.getImage(),20,0,60,75,null);
+		g.drawImage(hp.getImage(),120,65,250,30,null);
 		if (state){
 			g.drawImage(Battle.you.po[n].image1.getImage(),35,15,100,100,null);
 		}else{
 			g.drawImage(Battle.you.po[n].image2.getImage(),35,15,100,100,null);
 		}
 		if (Battle.you.po[n].sex){
-			g.drawImage(new ImageIcon(getClass().getResource("male.png")).getImage(),325,25,45,45,null);
+			g.drawImage(male.getImage(),325,25,45,45,null);
 		}else{
-			g.drawImage(new ImageIcon(getClass().getResource("female.png")).getImage(),325,25,35,35,null);
+			g.drawImage(female.getImage(),325,25,35,35,null);
 		}
 		g.setFont(new Font("Arial", Font.BOLD, 24));
 		g.setColor(Color.BLACK);
